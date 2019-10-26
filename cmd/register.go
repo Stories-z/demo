@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"strconv"
+	"time"
 )
 type User struct{
 	Name string
@@ -40,6 +41,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+logf,logopenerr:=os.OpenFile("log.txt",os.O_CREATE|os.O_APPEND|os.O_RDWR,0644)
+if logopenerr!=nil{
+fmt.Println("log file open error",logopenerr)
+}
 	username, _ := cmd.Flags().GetString("user")
 	password, _ := cmd.Flags().GetString("password")
 	email, _ := cmd.Flags().GetString("email")
@@ -88,6 +93,11 @@ to quickly create a Cobra application.`,
 	for i:=0;i<count;i++{
 		if dynamic[i].Name==username{
 		fmt.Println("The user name has existed,register fail!")
+		_,werr_:=logf.WriteString(time.Now().Format("2006-01-02 15:04:05")+" login fail!"+"\n")
+		if werr_!=nil{
+		fmt.Println("log file write error:",werr_)
+		return
+		}
 		eflag=1
 		break
 		}
@@ -95,7 +105,7 @@ to quickly create a Cobra application.`,
 	if eflag==0{
 		count++
 		dynamic=append(dynamic,User{username,password,email,phone})
-		of,oerr:=os.Create("curUser.txt")
+		of,oerr:=os.Create("entity/curUser.txt")
 		defer of.Close()
 		if oerr!=nil{
 			fmt.Println("curUser create err:",oerr)
@@ -120,6 +130,11 @@ to quickly create a Cobra application.`,
 			}
 		}
 		fmt.Println("Register success!")
+		_,werr_:=logf.WriteString(time.Now().Format("2006-01-02 15:04:05")+" "+username+" login success!"+"\n")
+		if werr_!=nil{
+		fmt.Println("log file write error:",werr_)
+		return
+		}
 	}
 
 

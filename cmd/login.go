@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"strconv"
 	"encoding/json"
+	"time"
 )
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
@@ -36,7 +37,10 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 	username, _ := cmd.Flags().GetString("user")
 	password, _ := cmd.Flags().GetString("password")
-
+logf,logopenerr:=os.OpenFile("log.txt",os.O_CREATE|os.O_APPEND|os.O_RDWR,0644)
+if logopenerr!=nil{
+fmt.Println("log file open error",logopenerr)
+}
 	_,err:=os.Stat("entity/curUser.txt")
 	if err==nil {
 	f,ierr:=os.Open("entity/curUser.txt")
@@ -54,6 +58,7 @@ to quickly create a Cobra application.`,
 	savedNum,terr:=strconv.Atoi(string(buf))
 	if terr!=nil{
 	fmt.Println("transform error:",terr)
+	return 
 	}
 	flag:=0
 	for i:=0;i<savedNum;i++{
@@ -72,15 +77,30 @@ to quickly create a Cobra application.`,
 		if tmpUser.Password==password && tmpUser.Name==username{
 		flag=1
 		fmt.Println("Login success!")
+		_,werr_:=logf.WriteString(time.Now().Format("2006-01-02 15:04:05")+" "+tmpUser.Name+" login success!"+"\n")
+if werr_!=nil{
+fmt.Println("log file write error:",werr_)
+return
+}
 		break
 		}
 	}
 	if flag==0{
 	fmt.Println("Login fail!")
+		_,werr_:=logf.WriteString(time.Now().Format("2006-01-02 15:04:05")+" login fail!"+"\n")
+if werr_!=nil{
+fmt.Println("log file write error:",werr_)
+return
+}
 	}
 	f.Close()
 }else{
 fmt.Println("Login fail!")
+		_,werr_:=logf.WriteString(time.Now().Format("2006-01-02 15:04:05")+" login fail!"+"\n")
+if werr_!=nil{
+fmt.Println("log file write error:",werr_)
+return
+}
 }
 
 	},
